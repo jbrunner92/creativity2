@@ -1,3 +1,106 @@
 /**
  * Created by justinbrunner on 2/6/17.
  */
+
+$(document).ready(function() {
+
+    $(document).on('play', function(e) {
+        if(window.$_currentlyPlaying) {
+            window.$_currentlyPlaying.pause();
+        }
+
+        if (window.$_currentlyPlaying !== e.target) {
+            window.$_currentlyPlaying = e.target;
+        }
+    });
+
+    $('[data-toggle="tooltip"]').tooltip();
+
+
+    $('#search-track').unbind().click(function() {
+        var trackName = $('#track-name').val().replace(' ', '+');
+        $.get({
+            url: 'https://api.spotify.com/v1/search', //ws.spotify.com/lookup/1/?uri=spotify%3Aartist%3A4YrKBkKSVeqDamzBPWVnSJ",
+            data: {
+                q: trackName,
+                type: 'track'
+            },
+            dataType: "json",
+            success: function(data) {
+                console.log(data);
+                var tracks = data.tracks.items;
+
+                $('#select-track').on('show.bs.modal', function() {
+                    var height = ($(window).height() * .8) - 56 - 65;
+                    $('#select-track-body').css('max-height', height + 'px');
+                    $('#select-track-body').html('');
+
+                    tracks.forEach(function(track) {
+                        console.log(track);
+
+                        if (track.album.images[0] && track.album.images[0].url) {
+                            var image = track.album.images[0].url;
+                        } else {
+                            var image = '';
+                        }
+
+                        var html = '<div value="' + track.id + '" class="row track-container">' +
+                            '<div class="container-fluid fill-height" style="width: 100%;">' +
+                            '<div class="row"></div><div class="col-sm-2"><img class="artist-img" src="' + image + '" alt="No Art Work"></div>' +
+                            '<div class="col-sm-10">Track Name: ' + track.name + '<br>Artist';
+
+                        if (track.artists.length == 1) {
+                            html += ": ";
+                        } else {
+                            html += "s: ";
+                        }
+
+                        if (track.artists && track.artists.length > 0) {
+                            track.artists.forEach(function (artist) {
+                                html += ' ' + artist.name + ',';
+                            });
+
+                            html = html.slice(0, -1);
+                        } else {
+                            html += 'Artist names not provided';
+                        }
+
+                        $(html + '</div>' +
+                            '<audio src="' + track.preview_url + '" class="audio-file" id="' + track.id + '-audio"></audio>' +
+                            '</div></div>')
+                            .appendTo('#select-track-body');
+
+                        $('div[value=' + track.id + ']').unbind().click(function (e) {
+                            e.stopPropagation();
+
+                            var $preview = $('#' + track.id + '-audio');
+
+                            $('.track-active').removeClass('track-active');
+                            $(this).addClass('track-active');
+
+                            if ($preview[0].paused) {
+                                $preview.trigger('play');
+                            } else {
+                                $preview.trigger('pause');
+                            }
+                        });
+                    });
+
+                    $('</div><div style="clear: both"></div>').appendTo('#select-track-body');
+                });
+
+                $('#select-track').on('hide.bs.modal', function() {
+                    if(window.$_currentlyPlaying) {
+                        window.$_currentlyPlaying.pause();
+                    }
+                });
+
+
+                $('#select-track').modal('show');
+            },
+            error: function(error) {
+                console.log("here");
+            }
+        })
+    });
+});
