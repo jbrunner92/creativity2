@@ -47,7 +47,7 @@ $(document).ready(function() {
                         var html = '<div value="' + track.id + '" class="row track-container">' +
                             '<div class="container-fluid fill-height" style="width: 100%;">' +
                             '<div class="row"></div><div class="col-sm-2"><img class="artist-img" src="' + image + '" alt="No Art Work"></div>' +
-                            '<div class="col-sm-10">Track Name: ' + track.name + '<br>Artist';
+                            '<div class="col-sm-10">Track Name: ' + track.name + '<br><span id="artists">Artist';
 
                         if (track.artists.length == 1) {
                             html += ": ";
@@ -65,7 +65,7 @@ $(document).ready(function() {
                             html += 'Artist names not provided';
                         }
 
-                        $(html + '</div>' +
+                        $(html + '</span></div>' +
                             '<audio src="' + track.preview_url + '" class="audio-file" id="' + track.id + '-audio"></audio>' +
                             '</div></div>')
                             .appendTo('#select-track-body');

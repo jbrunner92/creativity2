@@ -43,6 +43,10 @@ header div h1 {
     margin-bottom: 15px;
 }
 
+#artists {
+    color: limegreen;
+}
+
 /*.spotify-icon {
     content: url("spotifyImg.png");
     width: 55px;
