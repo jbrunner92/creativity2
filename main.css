@@ -1,7 +1,58 @@
-header h1 {
-    position: relative;
-    margin-top: 0px;
-    padding: 50px 0px 50px 0px;
-    background-color: lavender;
+body {
+    background-color: whitesmoke;
+    color: dodgerblue;
 }
 
+header {
+    position: relative;
+    background-color: lightgrey;
+    color: dodgerblue;
+}
+
+header div h1 {
+    margin-top: 0px;
+    padding: 25px 0px 40px 0px;
+}
+
+.artist-img {
+    width: 50px;
+    height: 50px;
+    margin: 5px 15px 5px 5px;
+    border-radius: 5px;
+    float: left;
+}
+
+.modal-body {
+    overflow: auto;
+    min-height: 400px;
+}
+
+.track-container {
+    border-top: 1px solid gray;
+}
+
+.track-container:hover {
+    background-color: aliceblue;
+}
+
+.track-active {
+    background-color: aliceblue;
+}
+
+#track-name {
+    margin-bottom: 15px;
+}
+
+/*.spotify-icon {
+    content: url("spotifyImg.png");
+    width: 55px;
+    height: 55px;
+    padding: 15px;
+}
+
+#footer {
+    width: 100%;
+    background-color: lavender;
+    position: absolute;
+    bottom: 0px;
+}*/
