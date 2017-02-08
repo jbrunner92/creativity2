@@ -163,11 +163,15 @@ $(document).ready(function() {
     });
 
     $('#songs_tab').click(function() {
-        $('#song-search').show();
+        $('.tab-active').removeClass('tab-active');
+        $(this).addClass('tab-active');
         $('#album-search').hide();
+        $('#song-search').show();
     });
 
     $('#albums_tab').click(function() {
+        $('.tab-active').removeClass('tab-active');
+        $(this).addClass('tab-active');
         $('#song-search').hide();
         $('#album-search').show();
     });

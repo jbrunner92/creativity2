@@ -27,7 +27,7 @@ header div h1 {
     border-top-right-radius: 5px;
 }
 
-#tab-active {
+#songs_tab.tab-active, #albums_tab.tab-active {
     background-color: whitesmoke;
 }
 
