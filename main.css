@@ -31,7 +31,7 @@ header div h1 {
     border-top: 1px solid gray;
 }
 
-.track-container:hover {
+.track-container div.audio-btn:hover {
     background-color: aliceblue;
 }
 
@@ -60,3 +60,34 @@ header div h1 {
     position: absolute;
     bottom: 0px;
 }*/
+
+.checkmark {
+    display:inline-block;
+    width: 50px;
+    height:50px;
+    -ms-transform: rotate(45deg); /* IE 9 */
+    -webkit-transform: rotate(45deg); /* Chrome, Safari, Opera */
+    transform: rotate(45deg);
+}
+
+.checkmark_stem {
+    position: absolute;
+    width:15px;
+    height:45px;
+    background-color:#ccc;
+    left:17px;
+    top:5px;
+}
+
+.checkmark_kick {
+    position: absolute;
+    width:15px;
+    height:15px;
+    background-color:#ccc;
+    left: 4px;
+    top: 35px;
+}
+
+.checked {
+    background-color: dodgerblue;
+}

@@ -3,6 +3,7 @@
  */
 
 $(document).ready(function() {
+    var favorites = [];
 
     $(document).on('play', function(e) {
         if(window.$_currentlyPlaying) {
@@ -27,7 +28,6 @@ $(document).ready(function() {
             },
             dataType: "json",
             success: function(data) {
-                console.log(data);
                 var tracks = data.tracks.items;
 
                 $('#select-track').on('show.bs.modal', function() {
@@ -36,17 +36,15 @@ $(document).ready(function() {
                     $('#select-track-body').html('');
 
                     tracks.forEach(function(track) {
-                        console.log(track);
-
                         if (track.album.images[0] && track.album.images[0].url) {
                             var image = track.album.images[0].url;
                         } else {
                             var image = '';
                         }
 
-                        var html = '<div value="' + track.id + '" class="row track-container">' +
-                            '<div class="container-fluid fill-height" style="width: 100%;">' +
-                            '<div class="row"></div><div class="col-sm-2"><img class="artist-img" src="' + image + '" alt="No Art Work"></div>' +
+                        var html = '<div class="row track-container">' +
+                            '<div value="' + track.id + '" class="col-sm-10 audio-btn">' +
+                            '<div class="row"><div class="col-sm-2"><img class="artist-img" src="' + image + '" alt="No Art Work"></div>' +
                             '<div class="col-sm-10">Track Name: ' + track.name + '<br><span id="artists">Artist';
 
                         if (track.artists.length == 1) {
@@ -67,7 +65,10 @@ $(document).ready(function() {
 
                         $(html + '</span></div>' +
                             '<audio src="' + track.preview_url + '" class="audio-file" id="' + track.id + '-audio"></audio>' +
-                            '</div></div>')
+                            '</div></div><div id="' + track.id + '" class="col-sm-2 checkmark-box"><span class="checkmark">' +
+                            '<div class="checkmark_stem"></div>' +
+                            '<div class="checkmark_kick"></div>' +
+                            '</span><!--input type="checkbox" /--></div></div>')
                             .appendTo('#select-track-body');
 
                         $('div[value=' + track.id + ']').unbind().click(function (e) {
@@ -81,12 +82,60 @@ $(document).ready(function() {
                             if ($preview[0].paused) {
                                 $preview.trigger('play');
                             } else {
+                                $(this).removeClass('track-active');
                                 $preview.trigger('pause');
+                            }
+                        });
+
+                        if (favorites.includes(track.id)) {
+                            $('#' + track.id).addClass('checkmark-box_checked');
+                            $('#' + track.id + ' div.checkmark_stem, #' + track.id + ' div.checkmark_kick').addClass('checked');
+                        }
+
+                        $('.checkmark-box').unbind().click(function(e) {
+                            e.stopPropagation();
+
+                            $(this).addClass('checkmark-box_checked');
+
+                            markCheckbox($(this).attr('id'));
+
+                            function markCheckbox(id) {
+                                if ( $('#' + id + ' div.checkmark_stem, #' + id + ' div.checkmark_kick').hasClass('checked')) {
+                                    $('#' + id).removeClass('checkmark-box_checked');
+                                    $('#' + id + ' div.checkmark_stem, #' + id + ' div.checkmark_kick').removeClass('checked');
+                                } else {
+                                    $('#' + id + ' div.checkmark_stem, #' + id + ' div.checkmark_kick').addClass('checked');
+                                }
                             }
                         });
                     });
 
                     $('</div><div style="clear: both"></div>').appendTo('#select-track-body');
+
+                    $('#select-track-save').click(function() {
+                        $('.checkmark-box').each(function() {
+                            trackId = $(this).attr('id');
+
+                            if ($(this).hasClass('checkmark-box_checked') && !favorites.includes(trackId)) {
+                                favorites.push(trackId);
+
+                                $('<div id="' + trackId + '_favorite_list" class="col-sm-10">' + $('div[value=' + trackId + ']').html() + '</div>' +
+                                    '<div class="col-sm-2"><button id="' + trackId + '_remove" class="btn btn-danger">-</button></div>')
+                                    .appendTo('#favorite_list');
+
+                                $('#' + trackId + '_remove').click(function() {
+                                    favorites.splice(trackId, 1);
+                                    $('#' + $(this).attr('id').slice(0, -7) + '_favorite_list').remove();
+                                    $(this).parent().remove();
+                                })
+
+                            } else if (!$(this).hasClass('checkmark-box_checked') && favorites.includes(trackId)) {
+                                favorites.splice(trackId, 1);
+                                $('#' + trackId + '_favorite_list').remove();
+                                $('#' + trackId + '_remove').parent().remove();
+                            }
+                        });
+                    });
                 });
 
                 $('#select-track').on('hide.bs.modal', function() {
