@@ -161,4 +161,14 @@ $(document).ready(function() {
             }
         })
     });
+
+    $('#songs_tab').click(function() {
+        $('#song-search').show();
+        $('#album-search').hide();
+    });
+
+    $('#album-search').click(function() {
+        $('#song-search').hide();
+        $('#album-search').show();
+    });
 });
