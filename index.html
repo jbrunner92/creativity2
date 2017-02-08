@@ -16,7 +16,7 @@
             <h1>Music Search</h1>
         </div>
     </header>
-    <div class="container-fluid fill-height">
+    <div id="song-search" class="container-fluid fill-height">
         <form>
             <div class="form-group">
                 <div class="col-sm-2">
@@ -31,20 +31,23 @@
             </div>
             <div style="clear: both"></div>
         </form>
-    </div>
-    <!-- SUGGESTION : PUT THE ALBUM SEARCH HERE (or if you have a better idea) :) -->
-    <div class="container-fluid fill-height">
-        <div class="row">
-            <h3 class="text-center">Your Favorite Songs</h3>
-        </div>
-        <div id="favorite_list" class="row">
+        <div class="container-fluid fill-height">
+            <div class="row">
+                <h3 class="text-center">Your Favorite Songs</h3>
+            </div>
+            <div id="favorite_song_list" class="row">
 
+            </div>
         </div>
+    </div>
+    <div id="album-search" class="container-fluid fill-height">
+
     </div>
     <!--div id="footer">
         <a class="spotify-icon text-left"></a>
     </div-->
 
+<!-- BOOSTRAP MODALS -->
     <div id="select-track" class="modal fade" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">

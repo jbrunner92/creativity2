@@ -100,7 +100,7 @@ $(document).ready(function() {
                             markCheckbox($(this).attr('id'));
 
                             function markCheckbox(id) {
-                                if ( $('#' + id + ' div.checkmark_stem, #' + id + ' div.checkmark_kick').hasClass('checked')) {
+                                if ($('#' + id + ' div.checkmark_stem, #' + id + ' div.checkmark_kick').hasClass('checked')) {
                                     $('#' + id).removeClass('checkmark-box_checked');
                                     $('#' + id + ' div.checkmark_stem, #' + id + ' div.checkmark_kick').removeClass('checked');
                                 } else {
@@ -120,17 +120,26 @@ $(document).ready(function() {
                                 favorites.push(trackId);
 
                                 $('<div id="' + trackId + '_favorite_list" class="col-sm-10">' + $('div[value=' + trackId + ']').html() + '</div>' +
-                                    '<div class="col-sm-2"><button id="' + trackId + '_remove" class="btn btn-danger">-</button></div>')
-                                    .appendTo('#favorite_list');
+                                    '<div class="col-sm-2"><button id="' + trackId + '_remove" class="btn btn-danger">Remove</button></div>')
+                                    .appendTo('#favorite_song_list');
 
                                 $('#' + trackId + '_remove').click(function() {
-                                    favorites.splice(trackId, 1);
-                                    $('#' + $(this).attr('id').slice(0, -7) + '_favorite_list').remove();
+                                    var trackId = $(this).attr('id').slice(0, -7);
+                                    var trackIdx = favorites.indexOf(trackId);
+
+                                    if (trackIdx > -1) {
+                                        favorites.splice(trackIdx, 1);
+                                    }
+                                    $('#' + trackId + '_favorite_list').remove();
                                     $(this).parent().remove();
                                 })
 
                             } else if (!$(this).hasClass('checkmark-box_checked') && favorites.includes(trackId)) {
-                                favorites.splice(trackId, 1);
+                                var trackIdx = favorites.indexOf(trackId);
+
+                                if (trackIdx > -1) {
+                                    favorites.splice(trackIdx, 1);
+                                }
                                 $('#' + trackId + '_favorite_list').remove();
                                 $('#' + trackId + '_remove').parent().remove();
                             }
