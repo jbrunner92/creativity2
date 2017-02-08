@@ -167,7 +167,7 @@ $(document).ready(function() {
         $('#album-search').hide();
     });
 
-    $('#album-search').click(function() {
+    $('#albums_tab').click(function() {
         $('#song-search').hide();
         $('#album-search').show();
     });
