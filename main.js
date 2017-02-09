@@ -3,8 +3,10 @@
  */
 
 $(document).ready(function() {
-    var favorites = [];
+    var favorites = [],
+        albumList = [];
 
+    /* if anything is played, stop everything else */
     $(document).on('play', function(e) {
         if(window.$_currentlyPlaying) {
             window.$_currentlyPlaying.pause();
@@ -15,10 +17,7 @@ $(document).ready(function() {
         }
     });
 
-    $('[data-toggle="tooltip"]').tooltip();
-
-
-    $('#search-track').unbind().click(function() {
+    $('#search-track').click(function() {
         var trackName = $('#track-name').val().replace(' ', '+');
         $.get({
             url: 'https://api.spotify.com/v1/search', //ws.spotify.com/lookup/1/?uri=spotify%3Aartist%3A4YrKBkKSVeqDamzBPWVnSJ",
@@ -71,7 +70,7 @@ $(document).ready(function() {
                             '</span><!--input type="checkbox" /--></div></div>')
                             .appendTo('#select-track-body');
 
-                        $('div[value=' + track.id + ']').unbind().click(function (e) {
+                        $('div[value=' + track.id + ']').off().click(function (e) {
                             e.stopPropagation();
 
                             var $preview = $('#' + track.id + '-audio');
@@ -92,7 +91,7 @@ $(document).ready(function() {
                             $('#' + track.id + ' div.checkmark_stem, #' + track.id + ' div.checkmark_kick').addClass('checked');
                         }
 
-                        $('.checkmark-box').unbind().click(function(e) {
+                        $('.checkmark-box').off().click(function(e) {
                             e.stopPropagation();
 
                             $(this).addClass('checkmark-box_checked');
@@ -157,9 +156,9 @@ $(document).ready(function() {
                 $('#select-track').modal('show');
             },
             error: function(error) {
-                console.log("here");
+                console.log("whassup noob!");
             }
-        })
+        });
     });
 
     $('#songs_tab').click(function() {
@@ -175,4 +174,14 @@ $(document).ready(function() {
         $('#song-search').hide();
         $('#album-search').show();
     });
+
+
+    /************** Albums Stuff *******************/
+    /*
+        var albums = data.albums.items;
+
+        albums.forEach(function(album) {
+            albumList.push(album.id);
+        });
+     */
 });
