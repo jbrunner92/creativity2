@@ -1,11 +1,4 @@
-/**
- * Created by justinbrunner on 2/6/17.
- */
-
 $(document).ready(function() {
-    var favorites = [],
-        albumList = [];
-
     /* if anything is played, stop everything else */
     $(document).on('play', function(e) {
         if(window.$_currentlyPlaying) {
@@ -17,7 +10,16 @@ $(document).ready(function() {
         }
     });
 
-    $('#search-track').click(function() {
+    searchInit();
+    setUpSelectTrack();
+});
+
+var favorites = {},
+    trackData = {},
+    albumList = [];
+
+function searchInit() {
+    $('#search-track').click(function () {
         var trackName = $('#track-name').val().replace(' ', '+');
         $.get({
             url: 'https://api.spotify.com/v1/search', //ws.spotify.com/lookup/1/?uri=spotify%3Aartist%3A4YrKBkKSVeqDamzBPWVnSJ",
@@ -26,166 +28,200 @@ $(document).ready(function() {
                 type: 'track'
             },
             dataType: "json",
-            success: function(data) {
+            success: function (data) {
+                console.log(data);
                 var tracks = data.tracks.items;
+                trackData = {};
 
-                $('#select-track').on('show.bs.modal', function() {
-                    var height = ($(window).height() * .8) - 56 - 65;
-                    $('#select-track-body').css('max-height', height + 'px');
-                    $('#select-track-body').html('');
+                tracks.forEach(function (track) {
+                    var artists = [],
+                        imgURL = '';
 
-                    tracks.forEach(function(track) {
-                        if (track.album.images[0] && track.album.images[0].url) {
-                            var image = track.album.images[0].url;
-                        } else {
-                            var image = '';
-                        }
-
-                        var html = '<div class="row track-container">' +
-                            '<div value="' + track.id + '" class="col-sm-10 audio-btn">' +
-                            '<div class="row"><div class="col-sm-2"><img class="artist-img" src="' + image + '" alt="No Art Work"></div>' +
-                            '<div class="col-sm-10">Track Name: ' + track.name + '<br><span id="artists">Artist';
-
-                        if (track.artists.length == 1) {
-                            html += ": ";
-                        } else {
-                            html += "s: ";
-                        }
-
-                        if (track.artists && track.artists.length > 0) {
-                            track.artists.forEach(function (artist) {
-                                html += ' ' + artist.name + ',';
-                            });
-
-                            html = html.slice(0, -1);
-                        } else {
-                            html += 'Artist names not provided';
-                        }
-
-                        $(html + '</span></div>' +
-                            '<audio src="' + track.preview_url + '" class="audio-file" id="' + track.id + '-audio"></audio>' +
-                            '</div></div><div id="' + track.id + '" class="col-sm-2 checkmark-box"><span class="checkmark">' +
-                            '<div class="checkmark_stem"></div>' +
-                            '<div class="checkmark_kick"></div>' +
-                            '</span><!--input type="checkbox" /--></div></div>')
-                            .appendTo('#select-track-body');
-
-                        $('div[value=' + track.id + ']').off().click(function (e) {
-                            e.stopPropagation();
-
-                            var $preview = $('#' + track.id + '-audio');
-
-                            $('.track-active').removeClass('track-active');
-                            $(this).addClass('track-active');
-
-                            if ($preview[0].paused) {
-                                $preview.trigger('play');
-                            } else {
-                                $(this).removeClass('track-active');
-                                $preview.trigger('pause');
-                            }
-                        });
-
-                        if (favorites.includes(track.id)) {
-                            $('#' + track.id).addClass('checkmark-box_checked');
-                            $('#' + track.id + ' div.checkmark_stem, #' + track.id + ' div.checkmark_kick').addClass('checked');
-                        }
-
-                        $('.checkmark-box').off().click(function(e) {
-                            e.stopPropagation();
-
-                            $(this).addClass('checkmark-box_checked');
-
-                            markCheckbox($(this).attr('id'));
-
-                            function markCheckbox(id) {
-                                if ($('#' + id + ' div.checkmark_stem, #' + id + ' div.checkmark_kick').hasClass('checked')) {
-                                    $('#' + id).removeClass('checkmark-box_checked');
-                                    $('#' + id + ' div.checkmark_stem, #' + id + ' div.checkmark_kick').removeClass('checked');
-                                } else {
-                                    $('#' + id + ' div.checkmark_stem, #' + id + ' div.checkmark_kick').addClass('checked');
-                                }
-                            }
-                        });
-                    });
-
-                    $('</div><div style="clear: both"></div>').appendTo('#select-track-body');
-
-                    $('#select-track-save').click(function() {
-                        $('.checkmark-box').each(function() {
-                            trackId = $(this).attr('id');
-
-                            if ($(this).hasClass('checkmark-box_checked') && !favorites.includes(trackId)) {
-                                favorites.push(trackId);
-
-                                $('<div id="' + trackId + '_favorite_list" class="col-sm-10">' + $('div[value=' + trackId + ']').html() + '</div>' +
-                                    '<div class="col-sm-2"><button id="' + trackId + '_remove" class="btn btn-danger">Remove</button></div>')
-                                    .appendTo('#favorite_song_list');
-
-                                $('#' + trackId + '_remove').click(function() {
-                                    var trackId = $(this).attr('id').slice(0, -7);
-                                    var trackIdx = favorites.indexOf(trackId);
-
-                                    if (trackIdx > -1) {
-                                        favorites.splice(trackIdx, 1);
-                                    }
-                                    $('#' + trackId + '_favorite_list').remove();
-                                    $(this).parent().remove();
-                                })
-
-                            } else if (!$(this).hasClass('checkmark-box_checked') && favorites.includes(trackId)) {
-                                var trackIdx = favorites.indexOf(trackId);
-
-                                if (trackIdx > -1) {
-                                    favorites.splice(trackIdx, 1);
-                                }
-                                $('#' + trackId + '_favorite_list').remove();
-                                $('#' + trackId + '_remove').parent().remove();
-                            }
-                        });
-                    });
-                });
-
-                $('#select-track').on('hide.bs.modal', function() {
-                    if(window.$_currentlyPlaying) {
-                        window.$_currentlyPlaying.pause();
+                    if (track.album && track.album.images && track.album.images[0] && track.album.images[0].url) {
+                        imgURL = track.album.images[0].url;
                     }
-                });
 
+                    track.artists.forEach(function (artist) {
+                        artists.push(artist.name);
+                    });
+
+                    trackData[track.id] = {
+                        id: track.id,
+                        name: track.name,
+                        preview_url: track.preview_url,
+                        img: imgURL,
+                        artists: artists
+                    };
+                })
 
                 $('#select-track').modal('show');
             },
-            error: function(error) {
+            error: function (error) {
                 console.log("whassup noob!");
             }
         });
     });
 
-    $('#songs_tab').click(function() {
+    $('#songs_tab').click(function () {
         $('.tab-active').removeClass('tab-active');
         $(this).addClass('tab-active');
         $('#album-search').hide();
         $('#song-search').show();
     });
 
-    $('#albums_tab').click(function() {
+    $('#albums_tab').click(function () {
         $('.tab-active').removeClass('tab-active');
         $(this).addClass('tab-active');
         $('#song-search').hide();
         $('#album-search').show();
     });
+}
 
+function setUpSelectTrack() {
+    $('#select-track').off().on('show.bs.modal', function () {
+        var height = ($(window).height() * .8) - 56 - 65;
+        $('#select-track-body').css('max-height', height + 'px');
+        $('#select-track-body').html('');
 
-    /************** Albums Stuff *******************/
-    /*
-        var albums = data.albums.items;
+        for (var id in trackData) {
+            var track = trackData[id];
 
-        albums.forEach(function(album) {
-            albumList.push(album.id);
+            var html = '<div class="row track-container">' +
+                '<div value="search_' + track.id + '" class="col-sm-10 audio-btn">' +
+                '<div class="row"><div class="col-sm-2"><img class="artist-img" src="' + track.img + '" alt="No Art Work"></div>' +
+                '<div class="col-sm-10">Track Name: ' + track.name + '<br><span class="artists">Artist';
+
+            html += (track.artists.length == 1) ? ": " : "s: ";
+
+            if (track.artists && track.artists.length > 0) {
+                track.artists.forEach(function (artist) {
+                    html += ' ' + artist + ',';
+                });
+
+                html = html.slice(0, -1);
+            } else {
+                html += 'Artist names not provided';
+            }
+
+            $(html + '</span></div>' +
+                '<audio src="' + track.preview_url + '" class="audio-file" id="search_' + track.id + '-audio"></audio>' +
+                '</div></div><div id="search_' + track.id + '" class="col-sm-2 checkmark-box"><span class="checkmark">' +
+                '<div class="checkmark_stem"></div><div class="checkmark_kick"></div></span></div></div>')
+                .appendTo('#select-track-body');
+
+            $('div[value=search_' + track.id + ']').off().click(function (e) {
+                e.stopPropagation();
+
+                var trackId = $(this).attr('value').substr(7);
+
+                var $preview = $('#search_' + trackId + '-audio');
+
+                $('.track-active').removeClass('track-active');
+                $(this).addClass('track-active');
+
+                if ($preview[0].paused) {
+                    $preview.trigger('play');
+                } else {
+                    $(this).removeClass('track-active');
+                    $preview.trigger('pause');
+                }
+            });
+
+            if (favorites[track.id] !== null && favorites[track.id] !== undefined) {
+                $('#search_' + track.id).addClass('checkmark-box_checked');
+                $('#search_' + track.id + ' div.checkmark_stem, #search_' + track.id + ' div.checkmark_kick').addClass('checked');
+            }
+
+            $('.checkmark-box').off().click(function (e) {
+                e.stopPropagation();
+
+                $(this).addClass('checkmark-box_checked');
+
+                markCheckbox($(this).attr('id').substr(7));
+
+                function markCheckbox(id) {
+                    if ($('#search_' + id + ' div.checkmark_stem, #search_' + id + ' div.checkmark_kick').hasClass('checked')) {
+                        $('#search_' + id).removeClass('checkmark-box_checked');
+                        $('#search_' + id + ' div.checkmark_stem, #search_' + id + ' div.checkmark_kick').removeClass('checked');
+                    } else {
+                        $('#search_' + id + ' div.checkmark_stem, #search_' + id + ' div.checkmark_kick').addClass('checked');
+                    }
+                }
+            });
+        };
+
+        $('</div><div style="clear: both"></div>').appendTo('#select-track-body');
+    });
+
+    $('#select-track-save').off().click(function () {
+        $('.checkmark-box').each(function () {
+            var trackId = $(this).attr('id').substr(7);
+
+            if ( $(this).hasClass('checkmark-box_checked') && (favorites[trackId] === undefined || favorites[trackId] === null) ) {
+                var track = trackData[trackId];
+                favorites[trackId] = trackData[trackId];
+
+                var html = '<div class="row fav_list" id="fav_' + track.id + '_list"><div class="col-sm-10 audio-btn">' +
+                    '<div class="row"><div class="col-sm-2"><img class="artist-img" src="' + track.img + '" alt="No Art Work"></div>' +
+                    '<div class="col-sm-10">Track Name: ' + track.name + '<br><span class="artists">Artist';
+
+                html += (track.artists.length == 1) ? ": " : "s: ";
+
+                if (track.artists && track.artists.length > 0) {
+                    track.artists.forEach(function (artist) {
+                        html += ' ' + artist + ',';
+                    });
+
+                    html = html.slice(0, -1);
+                } else {
+                    html += 'Artist names not provided';
+                }
+
+                $(html + '</span></div>' +
+                    '<audio src="' + track.preview_url + '" class="audio-file" id="fav_' + track.id + '-audio"></audio>' +
+                    '</div></div>' +
+                    '<div class="col-sm-2"><button id="fav_' + trackId + '_remove" class="btn btn-danger">Remove</button></div></div>')
+                    .appendTo('#favorite_song_list');
+
+                $('#fav_' + track.id + '_remove').click(function () {
+                    var trackId = $(this).attr('id').substr(4).slice(0, -7);
+
+                    favorites[trackId] = null;
+
+                    $('#fav_' + trackId + '_list').remove();
+                })
+
+                $('#fav_' + track.id + '_list').click(function(e) {
+                    e.stopPropagation();
+
+                    var $preview = $('#fav_' + track.id + '-audio');
+
+                    $('.fav_track-active').removeClass('fav_track-active');
+                    $(this).addClass('fav_track-active');
+
+                    if ($preview[0].paused) {
+                        $preview.trigger('play');
+                    } else {
+                        $(this).removeClass('fav_track-active');
+                        $preview.trigger('pause');
+                    }
+                });
+
+            } else if (!$(this).hasClass('checkmark-box_checked') && !(favorites[trackId] === undefined || favorites[trackId] === null) ) {
+                favorites[trackId] = null;
+                $('#fav_' + trackId + '_list').remove();
+                $('#fav_' + trackId + '_remove').parent().remove();
+            }
         });
-     */
+    });
 
-});
+    $('#select-track').on('hide.bs.modal', function () {
+        if (window.$_currentlyPlaying) {
+            window.$_currentlyPlaying.pause();
+        }
+    });
+}
+/*
 var templateSource = document.getElementById('results-template').innerHTML,
     template = Handlebars.compile(templateSource),
     resultsPlaceholder = document.getElementById('results'),
@@ -241,4 +277,4 @@ results.addEventListener('click', function (e) {
 document.getElementById('search-form').addEventListener('submit', function (e) {
     e.preventDefault();
     searchAlbums(document.getElementById('query').value);
-}, false);
+}, false);*/

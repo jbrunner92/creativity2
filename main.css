@@ -56,11 +56,20 @@ header div h1 {
     background-color: aliceblue;
 }
 
-#track-name {
+.fav_list {
+    padding-top: 5px;
+    border-top: 1px solid lightgrey;
+}
+
+.fav_track-active {
+    background-color: aliceblue;
+}
+
+#search_track-name {
     margin-bottom: 15px;
 }
 
-#artists {
+.artists {
     color: limegreen;
 }
 
