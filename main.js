@@ -28,7 +28,7 @@ function searchInit() {
                 type: 'track'
             },
             dataType: "json",
-            success: function (data) {
+            success: function (data) {console.log(data)
                 var tracks = data.tracks.items;
                 trackData = {};
 
@@ -161,7 +161,8 @@ function setUpSelectTrack() {
                 favorites[trackId] = trackData[trackId];
 
                 var html = '<div class="row fav_list" id="fav_' + track.id + '_list"><div class="col-sm-10 audio-btn">' +
-                    '<div class="row"><div class="col-sm-2"><img class="artist-img" src="' + track.img + '" alt="No Art Work"></div>' +
+                    '<div class="row"><div class="col-sm-2"><img class="artist-img" src="' + track.img + '" ' +
+                    'style="margin: -5px 15px 5px 5px;" alt="No Art Work"></div>' +
                     '<div class="col-sm-10">Track Name: ' + track.name + '<br><span class="artists">Artist';
 
                 html += (track.artists.length == 1) ? ": " : "s: ";
