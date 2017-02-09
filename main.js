@@ -28,7 +28,7 @@ function searchInit() {
                 type: 'track'
             },
             dataType: "json",
-            success: function (data) {console.log(data)
+            success: function (data) {
                 var tracks = data.tracks.items;
                 trackData = {};
 
